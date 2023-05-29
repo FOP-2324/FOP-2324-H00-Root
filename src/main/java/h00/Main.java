@@ -1,5 +1,11 @@
 package h00;
 
+import fopbot.Robot;
+import fopbot.World;
+
+import static fopbot.Direction.DOWN;
+import static fopbot.Direction.UP;
+
 /**
  * Main entry point in executing the program.
  */
