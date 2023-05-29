@@ -3,8 +3,8 @@ package h00;
 import fopbot.Robot;
 import fopbot.World;
 
-import static fopbot.Direction.DOWN;
-import static fopbot.Direction.UP;
+import static fopbot.Direction.RIGHT;
+import static fopbot.Direction.LEFT;
 
 /**
  * Main entry point in executing the program.
@@ -17,6 +17,58 @@ public class Main {
      * @param args program arguments, currently ignored
      */
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        // variable representing width/size of world
+        final int worldSize = 5;
+
+        // setting world size symmetrical, meaning height = width
+        World.setSize(worldSize, worldSize);
+
+        // speed of how fast the world gets refreshed (e.g. how fast the robot(s) act) 
+        // the lower the number, the faster the refresh
+        World.setDelay(50);
+
+        // make it possible to see the world window
+        World.setVisible(true);
+
+        // our program/assignment shall be tested/run !
+        runExercise();
+    }
+
+    public static void runExercise(){
+        Robot arnold = new Robot(0,0,RIGHT,20);
+        Robot bernd = new Robot(World.getWidth()-1,World.getHeight()-1,LEFT,0);
+        
+        // Arnold's first act of craziness
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 4; j++) {
+                arnold.putCoin();
+                arnold.move();
+            }
+            arnold.turnLeft();
+        }
+        arnold.putCoin();
+        arnold.move();
+
+        // Bernd's try of heroism
+        bernd.turnLeft();
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 4; j++) {
+                bernd.pickCoin();
+                bernd.move();
+            }
+            for (int j = 0; j < 3; j++) {
+                bernd.turnLeft();
+            }
+        }
+        bernd.pickCoin();
+        bernd.move();
+
+        // Arnold's craziness continues
+        while(arnold.hasAnyCoins()){
+            arnold.putCoin();
+            bernd.turnLeft();
+        }
+
+
     }
 }
