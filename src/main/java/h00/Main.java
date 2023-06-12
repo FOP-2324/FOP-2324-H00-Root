@@ -25,7 +25,7 @@ public class Main {
 
         // speed of how fast the world gets refreshed (e.g. how fast the robot(s) act) 
         // the lower the number, the faster the refresh
-        World.setDelay(50);
+        World.setDelay(300);
 
         // make it possible to see the world window
         World.setVisible(true);
@@ -35,10 +35,12 @@ public class Main {
     }
 
     public static void runExercise(){
-        Robot kaspar = new Robot(0,0,RIGHT,20);
-        Robot alfred = new Robot(World.getWidth()-1,World.getHeight()-1,LEFT,0);
+        Robot kaspar = new Robot(0,0,LEFT,20);
+        Robot alfred = new Robot(World.getWidth()-1,World.getHeight()-1,RIGHT,0);
         
-        // Arnold's first act of craziness
+        // Kaspars's first act of craziness
+        kaspar.turnLeft();
+        kaspar.turnLeft();
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
                 kaspar.putCoin();
@@ -49,8 +51,10 @@ public class Main {
         kaspar.putCoin();
         kaspar.move();
 
-        // Bernd's try of heroism
-        alfred.turnLeft();
+        // Alfred's try of heroism
+        for (int i = 0; i <3; i++) {
+         alfred.turnLeft();   
+        }
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
                 alfred.pickCoin();
@@ -63,7 +67,7 @@ public class Main {
         alfred.pickCoin();
         alfred.move();
 
-        // Arnold's craziness continues
+        // Kaspar's chaos continues
         while(kaspar.hasAnyCoins()){
             kaspar.putCoin();
             alfred.turnLeft();
