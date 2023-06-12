@@ -65,6 +65,13 @@ public class Main {
         for (int i = 0; i < 3; i++) {
             alfred.turnLeft();
         }
+        for (int i = 0; i < 4; i++) {
+            alfred.pickCoin();
+            alfred.move();
+        }
+        for (int i = 0; i < 3; i++) {
+            alfred.turnLeft();
+        }
         alfred.pickCoin();
         alfred.move();
 
