@@ -23,7 +23,7 @@ public class Main {
         // setting world size symmetrical, meaning height = width
         World.setSize(worldSize, worldSize);
 
-        // speed of how fast the world gets refreshed (e.g. how fast the robot(s) act) 
+        // speed of how fast the world gets refreshed (e.g. how fast the robot(s) act)
         // the lower the number, the faster the refresh
         World.setDelay(300);
 
@@ -34,45 +34,45 @@ public class Main {
         runExercise();
     }
 
-    public static void runExercise(){
-        Robot kaspar = new Robot(0,0,LEFT,20);
-        Robot alfred = new Robot(World.getWidth()-1,World.getHeight()-1,RIGHT,0);
-        
+    public static void runExercise() {
+        Robot kaspar = new Robot(0, 0, LEFT, 20);
+        Robot alfred = new Robot(World.getWidth() - 1, World.getHeight() - 1, RIGHT, 0);
+
         // Kaspars's first act of craziness
         kaspar.turnLeft();
         kaspar.turnLeft();
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 4; j++) {
-                kaspar.putCoin();
-                kaspar.move();
-            }
-            kaspar.turnLeft();
+        for (int j = 0; j < 4; j++) {
+            kaspar.putCoin();
+            kaspar.move();
         }
+        kaspar.turnLeft();
+        for (int j = 0; j < 4; j++) {
+            kaspar.putCoin();
+            kaspar.move();
+        }
+        kaspar.turnLeft();
         kaspar.putCoin();
         kaspar.move();
 
         // Alfred's try of heroism
-        for (int i = 0; i <3; i++) {
-         alfred.turnLeft();   
+        for (int i = 0; i < 3; i++) {
+            alfred.turnLeft();
         }
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 4; j++) {
-                alfred.pickCoin();
-                alfred.move();
-            }
-            for (int j = 0; j < 3; j++) {
-                alfred.turnLeft();
-            }
+        for (int i = 0; i < 4; i++) {
+            alfred.pickCoin();
+            alfred.move();
+        }
+        for (int i = 0; i < 3; i++) {
+            alfred.turnLeft();
         }
         alfred.pickCoin();
         alfred.move();
 
         // Kaspar's chaos continues
-        while(kaspar.hasAnyCoins()){
+        while (kaspar.hasAnyCoins()) {
             kaspar.putCoin();
             alfred.turnLeft();
         }
-
 
     }
 }
