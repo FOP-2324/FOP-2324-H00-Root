@@ -35,38 +35,38 @@ public class Main {
     }
 
     public static void runExercise(){
-        Robot arnold = new Robot(0,0,RIGHT,20);
-        Robot bernd = new Robot(World.getWidth()-1,World.getHeight()-1,LEFT,0);
+        Robot kaspar = new Robot(0,0,RIGHT,20);
+        Robot alfred = new Robot(World.getWidth()-1,World.getHeight()-1,LEFT,0);
         
         // Arnold's first act of craziness
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
-                arnold.putCoin();
-                arnold.move();
+                kaspar.putCoin();
+                kaspar.move();
             }
-            arnold.turnLeft();
+            kaspar.turnLeft();
         }
-        arnold.putCoin();
-        arnold.move();
+        kaspar.putCoin();
+        kaspar.move();
 
         // Bernd's try of heroism
-        bernd.turnLeft();
+        alfred.turnLeft();
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
-                bernd.pickCoin();
-                bernd.move();
+                alfred.pickCoin();
+                alfred.move();
             }
             for (int j = 0; j < 3; j++) {
-                bernd.turnLeft();
+                alfred.turnLeft();
             }
         }
-        bernd.pickCoin();
-        bernd.move();
+        alfred.pickCoin();
+        alfred.move();
 
         // Arnold's craziness continues
-        while(arnold.hasAnyCoins()){
-            arnold.putCoin();
-            bernd.turnLeft();
+        while(kaspar.hasAnyCoins()){
+            kaspar.putCoin();
+            alfred.turnLeft();
         }
 
 
