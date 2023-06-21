@@ -38,40 +38,52 @@ public class Main {
         Robot kaspar = new Robot(0, 0, LEFT, 20);
         Robot alfred = new Robot(World.getWidth() - 1, World.getHeight() - 1, RIGHT, 0);
 
-        // Kaspars's first act of craziness
+        // -- H1: Kaspars's first act of craziness -- 
+        // turning from west to east
         kaspar.turnLeft();
         kaspar.turnLeft();
+        // moving towards bottom right corner, putting coin and moving
         for (int j = 0; j < 4; j++) {
             kaspar.putCoin();
             kaspar.move();
         }
         kaspar.turnLeft();
+        // moving towards top right corner, putting coin and moving
+        // /!\ the coin for the bottom right corner gets placed here in one iteration
         for (int j = 0; j < 4; j++) {
             kaspar.putCoin();
             kaspar.move();
         }
         kaspar.turnLeft();
+        // coin placement for top right corner
         kaspar.putCoin();
         kaspar.move();
 
-        // Alfred's try of heroism
+        // -- H2: Alfred's try of heroism -- 
+        // turning from east to south, 3x turn left = 1 x turn right
         for (int i = 0; i < 3; i++) {
             alfred.turnLeft();
         }
+        // moving towards bottom right corner, removing coin and moving
         for (int i = 0; i < 4; i++) {
             alfred.pickCoin();
             alfred.move();
         }
+        // turning from south to west
         for (int i = 0; i < 3; i++) {
             alfred.turnLeft();
         }
+        // moving towards bottom left corner, removing coin and moving
+        // /!\ the coin for the bottom right corner gets removed here in one iteration
         for (int i = 0; i < 4; i++) {
             alfred.pickCoin();
             alfred.move();
         }
+        // turning from west to north
         for (int i = 0; i < 3; i++) {
             alfred.turnLeft();
         }
+        // // coin removal for bottom left corner
         alfred.pickCoin();
         alfred.move();
 
