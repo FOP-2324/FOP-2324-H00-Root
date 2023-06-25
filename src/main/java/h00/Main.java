@@ -38,7 +38,8 @@ public class Main {
         Robot kaspar = new Robot(0, 0, LEFT, 20);
         Robot alfred = new Robot(World.getWidth() - 1, World.getHeight() - 1, RIGHT, 0);
 
-        // -- H1: Kaspars's first act of craziness -- 
+        // -- Kaspars's first act of craziness -- 
+        // TODO H4
         // turning from west to east
         kaspar.turnLeft();
         kaspar.turnLeft();
@@ -59,7 +60,8 @@ public class Main {
         kaspar.putCoin();
         kaspar.move();
 
-        // -- H2: Alfred's try of heroism -- 
+        // -- Alfred's try of heroism -- 
+        // TODO H5
         // turning from east to south, 3x turn left = 1 x turn right
         for (int i = 0; i < 3; i++) {
             alfred.turnLeft();
@@ -87,7 +89,8 @@ public class Main {
         alfred.pickCoin();
         alfred.move();
 
-        // Kaspar's chaos continues
+        // -- Kaspar's chaos continues -- 
+        // TODO H6
         while (kaspar.hasAnyCoins()) {
             kaspar.putCoin();
             alfred.turnLeft();
