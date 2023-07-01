@@ -1,6 +1,7 @@
 package h00;
 
 import fopbot.Robot;
+import fopbot.RobotFamily;
 import fopbot.World;
 
 import static fopbot.Direction.RIGHT;
@@ -35,10 +36,10 @@ public class Main {
     }
 
     public static void runExercise() {
-        Robot kaspar = new Robot(0, 0, LEFT, 20);
-        Robot alfred = new Robot(World.getWidth() - 1, World.getHeight() - 1, RIGHT, 0);
+        Robot kaspar = new Robot(0, 0, LEFT, 20, RobotFamily.SQUARE_ORANGE);
+        Robot alfred = new Robot(4, 4, RIGHT, 0, RobotFamily.SQUARE_BLUE);
 
-        // -- Kaspars's first act of craziness -- 
+        // -- Kaspars's first act of craziness --
         // TODO H4
         // turning from west to east
         kaspar.turnLeft();
@@ -60,37 +61,34 @@ public class Main {
         kaspar.putCoin();
         kaspar.move();
 
-        // -- Alfred's try of heroism -- 
+        // -- Alfred's try of heroism --
         // TODO H5
-        // turning from east to south, 3x turn left = 1 x turn right
-        for (int i = 0; i < 3; i++) {
+        // turning from east to south
+        while (!alfred.isFacingDown())
             alfred.turnLeft();
-        }
-        // moving towards bottom right corner, removing coin and moving
-        for (int i = 0; i < 4; i++) {
+        // moving towards bottom right corner, removing coin and moving, until wall
+        // infront
+        while (alfred.isFrontClear()) {
             alfred.pickCoin();
             alfred.move();
         }
         // turning from south to west
-        for (int i = 0; i < 3; i++) {
+        while (!alfred.isFacingLeft())
             alfred.turnLeft();
-        }
-        // moving towards bottom left corner, removing coin and moving
-        // /!\ the coin for the bottom right corner gets removed here in one iteration
-        for (int i = 0; i < 4; i++) {
+        // moving towards bottom left corner, removing coin and moving, until wall
+        // infront
+        while (alfred.isFrontClear()) {
             alfred.pickCoin();
             alfred.move();
         }
         // turning from west to north
-        for (int i = 0; i < 3; i++) {
+        while (!alfred.isFacingUp())
             alfred.turnLeft();
-        }
         // // coin removal for bottom left corner
         alfred.pickCoin();
         alfred.move();
 
-        // -- Kaspar's chaos continues -- 
-        // TODO H6
+        // the last dance
         while (kaspar.hasAnyCoins()) {
             kaspar.putCoin();
             alfred.turnLeft();
