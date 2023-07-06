@@ -35,6 +35,9 @@ public class Main {
         runExercise();
     }
 
+    /**
+     * Runs the exercise.
+     */
     public static void runExercise() {
         Robot kaspar = new Robot(0, 0, LEFT, 20, RobotFamily.SQUARE_ORANGE);
         Robot alfred = new Robot(4, 4, RIGHT, 0, RobotFamily.SQUARE_BLUE);
@@ -64,24 +67,29 @@ public class Main {
         // -- Alfred's try of heroism --
         // TODO H4.2
         // turning from east to south
-        while (!alfred.isFacingDown())
+        while (!alfred.isFacingDown()) {
             alfred.turnLeft();
+        }
         // moving towards bottom right corner, removing coin and moving, until wall in front
         while (alfred.isFrontClear()) {
             alfred.pickCoin();
             alfred.move();
         }
         // turning from south to west
-        while (!alfred.isFacingLeft())
+        while (!alfred.isFacingLeft()) {
             alfred.turnLeft();
+        }
+
         // moving towards bottom left corner, removing coin and moving, until wall in front
         while (alfred.isFrontClear()) {
             alfred.pickCoin();
             alfred.move();
         }
         // turning from west to north
-        while (!alfred.isFacingUp())
+        while (!alfred.isFacingUp()) {
             alfred.turnLeft();
+        }
+
         // coin removal for bottom left corner
         alfred.pickCoin();
         alfred.move();
