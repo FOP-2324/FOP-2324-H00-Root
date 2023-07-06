@@ -4,8 +4,8 @@ import fopbot.Robot;
 import fopbot.RobotFamily;
 import fopbot.World;
 
-import static fopbot.Direction.RIGHT;
 import static fopbot.Direction.LEFT;
+import static fopbot.Direction.RIGHT;
 
 /**
  * Main entry point in executing the program.
@@ -40,7 +40,7 @@ public class Main {
         Robot alfred = new Robot(4, 4, RIGHT, 0, RobotFamily.SQUARE_BLUE);
 
         // -- Kaspars's first act of craziness --
-        // TODO H4
+        // TODO H4.1
         // turning from west to east
         kaspar.turnLeft();
         kaspar.turnLeft();
@@ -62,12 +62,11 @@ public class Main {
         kaspar.move();
 
         // -- Alfred's try of heroism --
-        // TODO H5
+        // TODO H4.2
         // turning from east to south
         while (!alfred.isFacingDown())
             alfred.turnLeft();
-        // moving towards bottom right corner, removing coin and moving, until wall
-        // infront
+        // moving towards bottom right corner, removing coin and moving, until wall in front
         while (alfred.isFrontClear()) {
             alfred.pickCoin();
             alfred.move();
@@ -75,8 +74,7 @@ public class Main {
         // turning from south to west
         while (!alfred.isFacingLeft())
             alfred.turnLeft();
-        // moving towards bottom left corner, removing coin and moving, until wall
-        // infront
+        // moving towards bottom left corner, removing coin and moving, until wall in front
         while (alfred.isFrontClear()) {
             alfred.pickCoin();
             alfred.move();
@@ -84,7 +82,7 @@ public class Main {
         // turning from west to north
         while (!alfred.isFacingUp())
             alfred.turnLeft();
-        // // coin removal for bottom left corner
+        // coin removal for bottom left corner
         alfred.pickCoin();
         alfred.move();
 
@@ -93,6 +91,5 @@ public class Main {
             kaspar.putCoin();
             alfred.turnLeft();
         }
-
     }
 }
