@@ -231,7 +231,10 @@ public class TutorTests {
     @BeforeEach
     public void setup() {
         setupWorld();
-        Main.runExercise();
+
+        try {
+            Main.runExercise();
+        } catch (Exception ignored){}
     }
 
     @Test
