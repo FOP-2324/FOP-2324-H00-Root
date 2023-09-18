@@ -34,10 +34,11 @@ public class TutorTests {
     //--Messages--//
     //------------//
 
-    public static final String NO_FOR_LOOP = "Für die Bewegung von Kaspar wurde keine for-Schleife verwendet";
-    public static final String NO_WHILE_LOOP = "Für die Bewegung von Kaspar wurde keine while-Schleife verwendet";
+    public static final String NO_FOR_LOOP = "Für die Bewegung von Kaspar wurde keine for-Schleife verwendet.";
+    public static final String WRONG_FOR_COUNT = "Für die Bewegung von Kaspar wurde die falsche Anzahl an for-Schleifen verwendet.";
+    public static final String NO_WHILE_LOOP = "Für die Bewegung von Alfred wurde keine while-Schleife verwendet.";
+    public static final String NOT_ALL_WHILE_LOOP = "Für die Bewegung von Alfred wurden nicht nur while-Schleifen verwendet.";
     public static final String NO_STATES_MESSAGE = "Der Roboter hat sich nicht bewegt.";
-    public static final String UPPER_RIGHT_CORNER_NOT_REACHED_ONCE = "Die obere rechte Ecke wurde niemals erreicht.";
     public static final String WRONG_X_COORDINATE = "Die X-Koordinate des Roboters ist inkorrekt.";
     public static final String WRONG_Y_COORDINATE = "Die Y-Koordinate des Roboters ist inkorrekt.";
     public static final String WRONG_ROBOT_AMOUNT = "Die Anzahl der Roboter auf dem Feld ist inkorrekt.";
@@ -149,7 +150,7 @@ public class TutorTests {
                 assertNotNull(robot, emptyContext(), c -> NO_STATES_MESSAGE);
                 return new MovementState(Objects.requireNonNull(robot).getX(), robot.getY(), robot.getDirection());
             })
-            .reduce(new ArrayList<MovementState>(), (acc, x) -> {
+            .reduce(new ArrayList<>(), (acc, x) -> {
                 if (acc.isEmpty() || !acc.get(acc.size() - 1).equals(x)) {
                     acc.add(x);
                 }
@@ -278,9 +279,10 @@ public class TutorTests {
 
     @Test
     public void testKasperFor(){
-        //TODO check nur für min eine For Schleife nicht position oder zweite
-        assertTrue(LOOPS.size() > 0, emptyContext(), r -> NO_FOR_LOOP);
-        assertTrue(LOOPS.get(0) instanceof CtFor, emptyContext(), r -> NO_FOR_LOOP);
+        assertTrue(LOOPS.stream().anyMatch(l -> l instanceof CtFor), emptyContext(), r -> NO_FOR_LOOP);
+        assertTrue(LOOPS.get(0) instanceof CtFor, contextBuilder().add("position", "0").build(), r -> WRONG_FOR_COUNT);
+        assertTrue(LOOPS.get(1) instanceof CtFor, contextBuilder().add("position", "1").build(), r -> WRONG_FOR_COUNT);
+        assertEquals(2L, LOOPS.stream().filter(l -> l instanceof CtFor).count(), emptyContext(), r -> WRONG_FOR_COUNT);
     }
 
     @Test
@@ -350,9 +352,25 @@ public class TutorTests {
 
     @Test
     public void testAlfredWhile(){
-        //TODO check nur für min eine While Schleife nicht position oder zweite
-        assertTrue(LOOPS.size() > 0, emptyContext(), r -> NO_WHILE_LOOP);
-        assertTrue(LOOPS.get(LOOPS.size()-1) instanceof CtWhile, emptyContext(), r -> NO_WHILE_LOOP);
+        assertTrue(LOOPS.stream().anyMatch(l -> l instanceof CtWhile), emptyContext(), r -> NO_WHILE_LOOP);
+
+        boolean allWhile = false;
+
+        for (int i = 0; i< LOOPS.size(); i++){
+            List<CtLoop> currentLoops = LOOPS.subList(i, LOOPS.size());
+            boolean allWhileSublist = currentLoops.stream().allMatch(l -> l instanceof CtWhile);
+
+            if (currentLoops.get(0) instanceof CtWhile){
+                assertTrue(allWhileSublist, emptyContext(), r -> NOT_ALL_WHILE_LOOP);
+            }
+
+            if (allWhileSublist){
+                allWhile = true;
+                break;
+            }
+        }
+
+        assertTrue(allWhile, emptyContext(), r -> NOT_ALL_WHILE_LOOP);
     }
 
     @Test
