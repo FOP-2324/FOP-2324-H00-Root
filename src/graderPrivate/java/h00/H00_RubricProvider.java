@@ -5,7 +5,7 @@ import org.sourcegrade.jagr.api.rubric.JUnitTestRef;
 import org.sourcegrade.jagr.api.rubric.Rubric;
 import org.sourcegrade.jagr.api.rubric.RubricProvider;
 
-import static h00.RubricUtils.*;
+import static org.tudalgo.algoutils.tutor.general.jagr.RubricUtils.criterion;
 
 public class H00_RubricProvider implements RubricProvider {
 
