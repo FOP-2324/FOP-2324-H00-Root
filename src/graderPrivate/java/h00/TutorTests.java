@@ -35,7 +35,7 @@ public class TutorTests {
     //------------//
 
     public static final String NO_FOR_LOOP = "Für die Bewegung von Kaspar wurde keine for-Schleife verwendet.";
-    public static final String WRONG_FOR_COUNT = "Für die Bewegung von Kaspar wurde die falsche Anzahl an for-Schleifen verwendet.";
+    public static final String WRONG_FOR_COUNT = "Für die Bewegung von Kaspar wurde die falsche Anzahl an for-Schleifen oder ein falscher Schleifentyp verwendet.";
     public static final String NO_WHILE_LOOP = "Für die Bewegung von Alfred wurde keine while-Schleife verwendet.";
     public static final String NOT_ALL_WHILE_LOOP = "Für die Bewegung von Alfred wurden nicht nur while-Schleifen verwendet.";
     public static final String NO_STATES_MESSAGE = "Der Roboter hat sich nicht bewegt.";
@@ -280,8 +280,8 @@ public class TutorTests {
     @Test
     public void testKasperFor(){
         assertTrue(LOOPS.stream().anyMatch(l -> l instanceof CtFor), emptyContext(), r -> NO_FOR_LOOP);
-        assertTrue(LOOPS.get(0) instanceof CtFor, contextBuilder().add("position", "0").build(), r -> WRONG_FOR_COUNT);
-        assertTrue(LOOPS.get(1) instanceof CtFor, contextBuilder().add("position", "1").build(), r -> WRONG_FOR_COUNT);
+        assertTrue(LOOPS.get(0) instanceof CtFor, contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "1").build(), r -> WRONG_FOR_COUNT);
+        assertTrue(LOOPS.get(1) instanceof CtFor, contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "2").build(), r -> WRONG_FOR_COUNT);
         assertEquals(2L, LOOPS.stream().filter(l -> l instanceof CtFor).count(), emptyContext(), r -> WRONG_FOR_COUNT);
     }
 
