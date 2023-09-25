@@ -20,7 +20,6 @@ public class H00_RubricProvider implements RubricProvider {
                         JUnitTestRef.and(
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testKasperMovement")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testKasperEndPosition")),
-                            JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testKasperFor")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testCorrectRobotCount"))
                         )
                     ),
@@ -28,9 +27,13 @@ public class H00_RubricProvider implements RubricProvider {
                         "Kaspar platziert die korrekte Anzahl an Münzen",
                         JUnitTestRef.and(
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testKasparCoins")),
-                            JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testKasperFor")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testCorrectRobotCount"))
                         )
+                    ),
+                    criterion(
+                        "Verbindliche Anforderungen wurden eingehalten.",
+                        JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testKasperFor")),
+                        -1
                     )
                 )
                 .build(),
@@ -42,7 +45,6 @@ public class H00_RubricProvider implements RubricProvider {
                         JUnitTestRef.and(
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredMovement")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredEndPosition")),
-                            JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredWhile")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testCorrectRobotCount"))
                         )
                     ),
@@ -50,9 +52,13 @@ public class H00_RubricProvider implements RubricProvider {
                         "Die Münzen wurden korrekt platziert",
                         JUnitTestRef.and(
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredCoins")),
-                            JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredWhile")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testCorrectRobotCount"))
                         )
+                    ),
+                    criterion(
+                        "Verbindliche Anforderungen wurden eingehalten.",
+                        JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredWhile")),
+                        -1
                     )
                 )
                 .build()
