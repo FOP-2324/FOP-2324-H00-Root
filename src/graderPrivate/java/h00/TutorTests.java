@@ -5,17 +5,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
+import org.tudalgo.algoutils.tutor.general.reflections.BasicMethodLink;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicTypeLink;
-import spoon.reflect.code.CtBlock;
-import spoon.reflect.code.CtFor;
-import spoon.reflect.code.CtLoop;
-import spoon.reflect.code.CtWhile;
+import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
-import java.util.*;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static fopbot.Direction.*;
 import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
@@ -48,8 +51,7 @@ public class TutorTests {
 
     private static final BasicTypeLink CLASS_LINK = BasicTypeLink.of(Main.class);
     private static final CtMethod<Void> EXERCISE_METHOD = ((CtClass<?>) CLASS_LINK.getCtElement()).getMethod("runExercise");
-    private static final CtBlock<Void> METHOD_BODY = EXERCISE_METHOD.getBody();
-    private static final List<CtLoop> LOOPS = METHOD_BODY.filterChildren(block -> block instanceof CtWhile || block instanceof CtFor).list();
+    private static final List<CtLoop> LOOPS = getLoops(Main.class, EXERCISE_METHOD);
 
     /**
      * Returns a custom error Message for wrong movement at a given index.
@@ -210,6 +212,33 @@ public class TutorTests {
         assertNotNull(states, emptyContext(), c -> NO_STATES_MESSAGE);
         assertFalse(states.isEmpty(), emptyContext(), c -> NO_STATES_MESSAGE);
         return states;
+    }
+
+    /**
+     * Collects all loops from the given method. Recursively checks all called methods from the given Class for further loops.
+     * @param clazz only methods of this class will be checked for loops.
+     * @param method the method to check.
+     * @return a list of all loops that are directly or indirectly contained in the method.
+     */
+    private static List<CtLoop> getLoops(Class<?> clazz, CtMethod<?> method){
+
+        return method.getDirectChildren().stream()
+            .filter(ctElement -> ctElement instanceof CtBlock<?>)
+            .flatMap(ctElement -> ctElement.getDirectChildren().stream())
+            .flatMap(ctElement -> {
+
+                if (ctElement instanceof CtInvocation<?> call){
+                    Method calledMethod = call.getExecutable().getActualMethod();
+                    if (!calledMethod.getDeclaringClass().equals(clazz)){
+                        return Stream.of();
+                    }
+                    CtMethod<?> calledMethodCt = BasicMethodLink.of(calledMethod).getCtElement();
+                    return getLoops(clazz, calledMethodCt).stream();
+                } else if (ctElement instanceof CtWhile || ctElement instanceof CtFor) {
+                    return Stream.of((CtLoop) ctElement);
+                }
+                return Stream.of();
+            }).toList();
     }
 
     /**
