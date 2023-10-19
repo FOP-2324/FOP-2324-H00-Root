@@ -13,10 +13,7 @@ import spoon.reflect.code.CtWhile;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -75,7 +72,6 @@ public class TutorTests {
         World.reset();
         World.setSize(5, 5);
         World.setDelay(0);
-        World.setVisible(false);
     }
 
     /**
@@ -142,6 +138,7 @@ public class TutorTests {
      */
     private static List<MovementState> toMovementStates(final List<Field> states) {
         return states.stream()
+            .filter(x -> !x.getEntities().isEmpty())
             .map(x -> {
                 final Robot robot = x.getEntities().stream()
                     .filter(Robot.class::isInstance)
