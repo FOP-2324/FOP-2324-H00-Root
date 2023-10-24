@@ -4,6 +4,7 @@ import fopbot.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
+import org.tudalgo.algoutils.student.CrashException;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicMethodLink;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicTypeLink;
@@ -12,10 +13,7 @@ import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtMethod;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -51,7 +49,7 @@ public class TutorTests {
 
     private static final BasicTypeLink CLASS_LINK = BasicTypeLink.of(Main.class);
     private static final CtMethod<Void> EXERCISE_METHOD = ((CtClass<?>) CLASS_LINK.getCtElement()).getMethod("runExercise");
-    private static final List<CtLoop> LOOPS = getLoops(Main.class, EXERCISE_METHOD);
+    private static final List<CtLoop> LOOPS = getLoops(Main.class, EXERCISE_METHOD).toList();
 
     /**
      * Returns a custom error Message for wrong movement at a given index.
@@ -220,25 +218,45 @@ public class TutorTests {
      * @param method the method to check.
      * @return a list of all loops that are directly or indirectly contained in the method.
      */
-    private static List<CtLoop> getLoops(Class<?> clazz, CtMethod<?> method){
+    private static Stream<CtLoop> getLoops(Class<?> clazz, CtMethod<?> method){
 
         return method.getDirectChildren().stream()
             .filter(ctElement -> ctElement instanceof CtBlock<?>)
             .flatMap(ctElement -> ctElement.getDirectChildren().stream())
+            .filter(ctElement -> ctElement instanceof CtCodeElement)
             .flatMap(ctElement -> {
+                if (ctElement instanceof CtLoop loop){
+                    return Stream.concat(Stream.of(loop), getNestedLoops(clazz, loop));
+                }
+                return getNestedLoops(clazz, (CtCodeElement) ctElement);
+            });
+    }
 
+    /**
+     * Returns all nested Loops contained in the statement. Calls getLoops for loops in Helper Methods
+     * @param clazz the clazz that should be checked for helper methods
+     * @param statement the statement that should be checked for loops.
+     * @return A Stream Containing all the loops contained in the statement
+     */
+    private static Stream<CtLoop> getNestedLoops(Class<?> clazz, CtCodeElement statement){
+        return statement.getDirectChildren().stream()
+            .filter(ctElement -> ctElement instanceof CtCodeElement)
+            .flatMap(ctElement -> {
                 if (ctElement instanceof CtInvocation<?> call){
                     Method calledMethod = call.getExecutable().getActualMethod();
                     if (!calledMethod.getDeclaringClass().equals(clazz)){
                         return Stream.of();
                     }
                     CtMethod<?> calledMethodCt = BasicMethodLink.of(calledMethod).getCtElement();
-                    return getLoops(clazz, calledMethodCt).stream();
-                } else if (ctElement instanceof CtWhile || ctElement instanceof CtFor) {
-                    return Stream.of((CtLoop) ctElement);
+                    return getLoops(clazz, calledMethodCt);
                 }
-                return Stream.of();
-            }).toList();
+
+                Stream<CtLoop> nested = getNestedLoops(clazz, (CtCodeElement) ctElement);
+                if (ctElement instanceof CtLoop loop) {
+                    nested = Stream.concat(Stream.of(loop), nested);
+                }
+                return nested;
+            });
     }
 
     /**
@@ -261,7 +279,11 @@ public class TutorTests {
 
         try {
             Main.runExercise();
-        } catch (Exception ignored){}
+        } catch (Exception e){
+            if (e instanceof CrashException) {
+                throw e;
+            }
+        }
     }
 
     @Test
