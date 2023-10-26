@@ -14,6 +14,7 @@ public class H00_RubricProvider implements RubricProvider {
         .addChildCriteria(
             Criterion.builder()
                 .shortDescription("Kaspar, der Zimmerchaot")
+                .minPoints(0)
                 .addChildCriteria(
                     criterion(
                         "Kaspar erreicht die Position (3, 4) über die korrekten Bewegungen",
@@ -39,6 +40,7 @@ public class H00_RubricProvider implements RubricProvider {
                 .build(),
             Criterion.builder()
                 .shortDescription("Alfred, der Ordnungsfanatiker")
+                .minPoints(0)
                 .addChildCriteria(
                     criterion(
                         "Alfred erreicht die korrekte Position und nimmt den korrekten Weg",
@@ -49,7 +51,7 @@ public class H00_RubricProvider implements RubricProvider {
                         )
                     ),
                     criterion(
-                        "Die Münzen wurden korrekt platziert",
+                        "Am Ende liegt auf jedem Feld die gewünschte Anzahl an Münzen.",
                         JUnitTestRef.and(
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testAlfredCoins")),
                             JUnitTestRef.ofMethod(() -> TutorTests.class.getDeclaredMethod("testCorrectRobotCount"))

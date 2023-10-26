@@ -399,20 +399,22 @@ public class TutorTests {
     }
 
     @Test
-    public void testAlfredWhile(){
+    public void testAlfredWhile() {
         assertTrue(LOOPS.stream().anyMatch(l -> l instanceof CtWhile), emptyContext(), r -> NO_WHILE_LOOP);
 
         boolean allWhile = false;
 
-        for (int i = 0; i< LOOPS.size(); i++){
+        int forLoopIndex = LOOPS.indexOf(LOOPS.stream().filter(l -> l instanceof CtFor).findFirst().orElse(null));
+
+        for (int i = Math.max(forLoopIndex, 0); i < LOOPS.size(); i++) {
             List<CtLoop> currentLoops = LOOPS.subList(i, LOOPS.size());
             boolean allWhileSublist = currentLoops.stream().allMatch(l -> l instanceof CtWhile);
 
-            if (currentLoops.get(0) instanceof CtWhile){
+            if (currentLoops.get(0) instanceof CtWhile) {
                 assertTrue(allWhileSublist, emptyContext(), r -> NOT_ALL_WHILE_LOOP);
             }
 
-            if (allWhileSublist){
+            if (allWhileSublist) {
                 allWhile = true;
                 break;
             }
