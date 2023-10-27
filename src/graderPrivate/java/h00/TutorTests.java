@@ -5,7 +5,6 @@ import fopbot.Direction;
 import fopbot.Field;
 import fopbot.Robot;
 import fopbot.World;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,6 +79,8 @@ public class TutorTests {
 
     BasicTypeLink classLink;
     CtMethod<Void> exerciseMethod;
+
+    private Throwable executionException;
 
     /**
      * Returns a custom error Message for wrong movement at a given index.
@@ -303,27 +303,33 @@ public class TutorTests {
             exerciseMethod = ((CtClass<?>) classLink.getCtElement())
                 .getMethod("runExercise");
             loops = getLoops(Main.class, exerciseMethod).toList();
+            setupWorld();
+
+            //noinspection UnstableApiUsage
+            World.getGlobalWorld().setActionLimit(1024);
+
+            Assertions2.call(
+                () -> {
+                    try {
+                        classLink.getMethod(BasicStringMatchers.identical("runExercise")).invokeStatic();
+                    } catch (final Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                },
+                emptyContext(),
+                r -> String.format(EXCEPTION_MESSAGE, r.cause().toString())
+            );
         } catch (final Throwable e) {
             // cannot check for loops
+            this.executionException = e;
         }
     }
 
-    /**
-     * Test setup.
-     */
     @BeforeEach
-    public void setup() {
-        setupWorld();
-
-        Assertions2.call(
-            () -> Assertions.assertDoesNotThrow(
-                () -> classLink.getMethod(BasicStringMatchers.identical("runExercise")).invokeStatic(),
-                String.format(EXCEPTION_MESSAGE, "Es sind Kompilierfehler aufgetreten oder die Methodensignatur von "
-                    + "runExercise wurde verändert.")
-            ),
-            emptyContext(),
-            r -> String.format(EXCEPTION_MESSAGE, r.cause().toString())
-        );
+    public void failWhenException() throws Throwable {
+        if (this.executionException != null) {
+            throw executionException;
+        }
     }
 
     @Test
