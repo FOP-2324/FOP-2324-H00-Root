@@ -10,7 +10,9 @@ import org.tudalgo.algoutils.tutor.general.reflections.BasicMethodLink;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicTypeLink;
 import spoon.reflect.code.*;
 import spoon.reflect.declaration.CtClass;
+import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
+import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -218,17 +220,26 @@ public class TutorTests {
      * @param method the method to check.
      * @return a list of all loops that are directly or indirectly contained in the method.
      */
-    private static Stream<CtLoop> getLoops(Class<?> clazz, CtMethod<?> method){
-
-        return method.getDirectChildren().stream()
-            .filter(ctElement -> ctElement instanceof CtBlock<?>)
-            .flatMap(ctElement -> ctElement.getDirectChildren().stream())
-            .filter(ctElement -> ctElement instanceof CtCodeElement)
-            .flatMap(ctElement -> {
-                if (ctElement instanceof CtLoop loop){
-                    return Stream.concat(Stream.of(loop), getNestedLoops(clazz, loop));
+    private static Stream<CtLoop> getLoops(final Class<?> clazz, final CtMethod<?> method){
+        return method.getElements(new TypeFilter<>(CtElement.class) {
+                @Override
+                public boolean matches(final CtElement element) {
+                    return (element instanceof CtLoop || (element instanceof CtInvocation<?>)) && element.getParent(CtMethod.class).getDeclaringType().getActualClass().equals(clazz);
                 }
-                return getNestedLoops(clazz, (CtCodeElement) ctElement);
+            })
+            .stream()
+            .flatMap(element -> {
+                if (element instanceof final CtInvocation<?> call){
+                    final var calledMethod = call.getExecutable();
+                    if(!calledMethod.getDeclaringType().equals(clazz)){
+                        return Stream.of();
+                    }
+                    final var actualCalledMethod = calledMethod.getActualMethod();
+                    final CtMethod<?> calledMethodCt = BasicMethodLink.of(actualCalledMethod).getCtElement();
+                    return getLoops(clazz, calledMethodCt);
+//                    return Stream.of();
+                }
+                return Stream.of((CtLoop) element);
             });
     }
 
