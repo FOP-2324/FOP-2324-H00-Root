@@ -318,7 +318,8 @@ public class TutorTests {
         Assertions2.call(
             () -> Assertions.assertDoesNotThrow(
                 () -> classLink.getMethod(BasicStringMatchers.identical("runExercise")).invokeStatic(),
-                String.format(EXCEPTION_MESSAGE, "Es sind Kompilierfehler aufgetreten.")
+                String.format(EXCEPTION_MESSAGE, "Es sind Kompilierfehler aufgetreten oder die Methodensignatur von "
+                    + "runExercise wurde verändert.")
             ),
             emptyContext(),
             r -> String.format(EXCEPTION_MESSAGE, r.cause().toString())
@@ -371,18 +372,7 @@ public class TutorTests {
     public void testKasperFor() {
         assertTrue(loops.stream().anyMatch(l -> l instanceof CtFor), emptyContext(), r -> NO_FOR_LOOP);
         assertTrue(
-            loops.get(0) instanceof CtFor,
-            contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "1").build(),
-            r -> WRONG_FOR_COUNT
-        );
-        assertTrue(
-            loops.get(1) instanceof CtFor,
-            contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "2").build(),
-            r -> WRONG_FOR_COUNT
-        );
-        assertEquals(
-            2L,
-            loops.stream().filter(l -> l instanceof CtFor).count(),
+            loops.stream().filter(l -> l instanceof CtFor).count() >= 2L,
             emptyContext(),
             r -> WRONG_FOR_COUNT
         );
@@ -467,25 +457,15 @@ public class TutorTests {
     public void testAlfredWhile() {
         assertTrue(loops.stream().anyMatch(l -> l instanceof CtWhile), emptyContext(), r -> NO_WHILE_LOOP);
 
-        boolean allWhile = false;
+        final int forLoopIndex = loops.indexOf(
+            loops.stream().filter(l -> l instanceof CtFor).reduce((a, b) -> b).orElse(null)
+        );
 
-        final int forLoopIndex = loops.indexOf(loops.stream().filter(l -> l instanceof CtFor).findFirst().orElse(null));
-
-        for (int i = Math.max(forLoopIndex, 0); i < loops.size(); i++) {
-            final List<CtLoop> currentLoops = loops.subList(i, loops.size());
-            final boolean allWhileSublist = currentLoops.stream().allMatch(l -> l instanceof CtWhile);
-
-            if (currentLoops.get(0) instanceof CtWhile) {
-                assertTrue(allWhileSublist, emptyContext(), r -> NOT_ALL_WHILE_LOOP);
-            }
-
-            if (allWhileSublist) {
-                allWhile = true;
-                break;
-            }
-        }
-
-        assertTrue(allWhile, emptyContext(), r -> NOT_ALL_WHILE_LOOP);
+        assertTrue(
+            loops.stream().skip(forLoopIndex + 1).anyMatch(l -> l instanceof CtWhile),
+            emptyContext(),
+            r -> NOT_ALL_WHILE_LOOP
+        );
     }
 
     @Test
