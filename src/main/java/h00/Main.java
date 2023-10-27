@@ -17,7 +17,7 @@ public class Main {
      *
      * @param args program arguments, currently ignored
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         // variable representing width/size of world
         final int worldSize = 5;
 
@@ -38,9 +38,10 @@ public class Main {
     /**
      * Runs the exercise.
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void runExercise() {
-        Robot kaspar = new Robot(0, 0, LEFT, 20, RobotFamily.SQUARE_ORANGE);
-        Robot alfred = new Robot(4, 4, RIGHT, 0, RobotFamily.SQUARE_BLUE);
+        final Robot kaspar = new Robot(0, 0, LEFT, 20, RobotFamily.SQUARE_ORANGE);
+        final Robot alfred = new Robot(4, 4, RIGHT, 0, RobotFamily.SQUARE_BLUE);
 
         // -- Kaspars's first act of craziness --
         // TODO H4.1

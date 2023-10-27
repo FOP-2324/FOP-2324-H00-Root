@@ -1,29 +1,47 @@
 package h00;
 
-import fopbot.*;
+import fopbot.Coin;
+import fopbot.Direction;
+import fopbot.Field;
+import fopbot.Robot;
+import fopbot.World;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
-import org.tudalgo.algoutils.student.CrashException;
+import org.tudalgo.algoutils.tutor.general.assertions.Assertions2;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicMethodLink;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicTypeLink;
-import spoon.reflect.code.*;
+import spoon.reflect.code.CtFor;
+import spoon.reflect.code.CtInvocation;
+import spoon.reflect.code.CtLoop;
+import spoon.reflect.code.CtWhile;
 import spoon.reflect.declaration.CtClass;
 import spoon.reflect.declaration.CtElement;
 import spoon.reflect.declaration.CtMethod;
 import spoon.reflect.visitor.filter.TypeFilter;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static fopbot.Direction.*;
-import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
+import static fopbot.Direction.DOWN;
+import static fopbot.Direction.LEFT;
+import static fopbot.Direction.RIGHT;
+import static fopbot.Direction.UP;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.assertEquals;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.assertFalse;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.assertNotNull;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.assertTrue;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.contextBuilder;
+import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.emptyContext;
 
 /**
  * The Tutor Tests for Submission H00.
@@ -38,21 +56,26 @@ public class TutorTests {
     //------------//
 
     public static final String NO_FOR_LOOP = "Für die Bewegung von Kaspar wurde keine for-Schleife verwendet.";
-    public static final String WRONG_FOR_COUNT = "Für die Bewegung von Kaspar wurde die falsche Anzahl an for-Schleifen oder ein falscher Schleifentyp verwendet.";
+    public static final String WRONG_FOR_COUNT = "Für die Bewegung von Kaspar wurde die falsche Anzahl an for-Schleifen"
+        + "oder ein falscher Schleifentyp verwendet.";
     public static final String NO_WHILE_LOOP = "Für die Bewegung von Alfred wurde keine while-Schleife verwendet.";
-    public static final String NOT_ALL_WHILE_LOOP = "Für die Bewegung von Alfred wurden nicht nur while-Schleifen verwendet.";
+    public static final String NOT_ALL_WHILE_LOOP = "Für die Bewegung von Alfred wurden nicht nur while-Schleifen "
+        + "verwendet.";
     public static final String NO_STATES_MESSAGE = "Der Roboter hat sich nicht bewegt.";
     public static final String WRONG_X_COORDINATE = "Die X-Koordinate des Roboters ist inkorrekt.";
     public static final String WRONG_Y_COORDINATE = "Die Y-Koordinate des Roboters ist inkorrekt.";
     public static final String WRONG_ROBOT_AMOUNT = "Die Anzahl der Roboter auf dem Feld ist inkorrekt.";
-    public static final String WRONG_COIN_AMOUNT_KASPER = "Die Anzahl der Münzen auf dem Feld ist inkorrekt nachdem Kasper seine Aktionen ausgeführt hat.";
-    public static final String WRONG_COIN_AMOUNT_ALFRED = "Die Anzahl der Münzen auf dem Feld ist inkorrekt nachdem Alfred seine Aktionen ausgeführt hat.";
+    public static final String WRONG_COIN_AMOUNT_KASPER = "Die Anzahl der Münzen auf dem Feld ist inkorrekt nachdem "
+        + "Kasper seine Aktionen ausgeführt hat.";
+    public static final String WRONG_COIN_AMOUNT_ALFRED = "Die Anzahl der Münzen auf dem Feld ist inkorrekt nachdem "
+        + "Alfred seine Aktionen ausgeführt hat.";
     public static final String WRONG_VIEWING_DIRECTION = "Die Blickrichtung des Roboters ist inkorrekt.";
     public static final String WRONG_MOVEMENT_AMOUNT = "Die Anzahl der Bewegungen ist inkorrekt.";
     private static final String END_POSITION_KASPER_NOT_CORRECT = "Die Endposition von Kasper ist nicht korrekt.";
     private static final String END_POSITION_ALFRED_NOT_CORRECT = "Die Endposition des Alfred ist nicht korrekt.";
+    private static final String EXCEPTION_MESSAGE = "Es ist ein Fehler aufgetreten: %s";
 
-    private List<CtLoop> LOOPS;
+    private List<CtLoop> loops;
 
     /**
      * Returns a custom error Message for wrong movement at a given index.
@@ -94,7 +117,11 @@ public class TutorTests {
      * @param actual   the actual movement
      * @param endsWith if it is expected, that the end of the actual movements should match or the beginning
      */
-    private static void assertMovementEquals(ArrayList<MovementState> expected, ArrayList<MovementState> actual, boolean endsWith) {
+    private static void assertMovementEquals(
+        final ArrayList<MovementState> expected,
+        final ArrayList<MovementState> actual,
+        final boolean endsWith
+    ) {
         // length
         assertTrue(
             expected.size() <= actual.size(),
@@ -103,7 +130,7 @@ public class TutorTests {
         );
 
 
-        if (endsWith){
+        if (endsWith) {
             Collections.reverse(expected);
             Collections.reverse(actual);
         }
@@ -182,7 +209,8 @@ public class TutorTests {
      */
     public static int[][] getCoinCounts(final Field state) {
         final var result = new int[World.getHeight()][World.getWidth()];
-        state.getEntities().stream().filter(Coin.class::isInstance).forEach(c -> result[c.getX()][c.getY()] += ((Coin) c).getCount());
+        state.getEntities().stream().filter(Coin.class::isInstance)
+            .forEach(c -> result[c.getX()][c.getY()] += ((Coin) c).getCount());
         return result;
     }
 
@@ -195,7 +223,7 @@ public class TutorTests {
     public static boolean checkCoinCountsEqual(final int[][] expected, final int[][] actual) {
         for (int x = 0; x < World.getWidth(); x++) {
             for (int y = 0; y < World.getHeight(); y++) {
-                if (expected[y][x] != actual[y][x]){
+                if (expected[y][x] != actual[y][x]) {
                     return false;
                 }
             }
@@ -217,7 +245,8 @@ public class TutorTests {
 
     /**
      * Collects all loops from the given method. Recursively checks all called methods from the given Class for further loops.
-     * @param clazz only methods of this class will be checked for loops.
+     *
+     * @param clazz  only methods of this class will be checked for loops.
      * @param method the method to check.
      * @return a list of all loops that are directly or indirectly contained in the method.
      */
@@ -225,7 +254,8 @@ public class TutorTests {
         return method.getElements(new TypeFilter<>(CtElement.class) {
                 @Override
                 public boolean matches(final CtElement element) {
-                    return (element instanceof CtLoop || (element instanceof CtInvocation<?>)) && element.getParent(CtMethod.class).getDeclaringType().getActualClass().equals(clazz);
+                    return (element instanceof CtLoop || (element instanceof CtInvocation<?>))
+                        && element.getParent(CtMethod.class).getDeclaringType().getActualClass().equals(clazz);
                 }
             })
             .stream()
@@ -244,33 +274,6 @@ public class TutorTests {
     }
 
     /**
-     * Returns all nested Loops contained in the statement. Calls getLoops for loops in Helper Methods
-     * @param clazz the clazz that should be checked for helper methods
-     * @param statement the statement that should be checked for loops.
-     * @return A Stream Containing all the loops contained in the statement
-     */
-    private static Stream<CtLoop> getNestedLoops(Class<?> clazz, CtCodeElement statement){
-        return statement.getDirectChildren().stream()
-            .filter(ctElement -> ctElement instanceof CtCodeElement)
-            .flatMap(ctElement -> {
-                if (ctElement instanceof CtInvocation<?> call){
-                    Method calledMethod = call.getExecutable().getActualMethod();
-                    if (!calledMethod.getDeclaringClass().equals(clazz)){
-                        return Stream.of();
-                    }
-                    CtMethod<?> calledMethodCt = BasicMethodLink.of(calledMethod).getCtElement();
-                    return getLoops(clazz, calledMethodCt);
-                }
-
-                Stream<CtLoop> nested = getNestedLoops(clazz, (CtCodeElement) ctElement);
-                if (ctElement instanceof CtLoop loop) {
-                    nested = Stream.concat(Stream.of(loop), nested);
-                }
-                return nested;
-            });
-    }
-
-    /**
      * Returns the final State of the World.
      *
      * @return the final State of the World
@@ -285,27 +288,28 @@ public class TutorTests {
     //---------//
 
     @BeforeAll
-    public void setupLoops(){
-        final BasicTypeLink CLASS_LINK = BasicTypeLink.of(Main.class);
-        final CtMethod<Void> EXERCISE_METHOD = ((CtClass<?>) CLASS_LINK.getCtElement()).getMethod("runExercise");
-        LOOPS = getLoops(Main.class, EXERCISE_METHOD).toList();
+    public void setupLoops() {
+        final BasicTypeLink classLink = BasicTypeLink.of(Main.class);
+        final CtMethod<Void> exerciseMethod = ((CtClass<?>) classLink.getCtElement()).getMethod("runExercise");
+        loops = getLoops(Main.class, exerciseMethod).toList();
     }
 
+    /**
+     * Test setup.
+     */
     @BeforeEach
     public void setup() {
         setupWorld();
 
-        try {
-            Main.runExercise();
-        } catch (Exception e){
-            if (e instanceof CrashException) {
-                throw e;
-            }
-        }
+        Assertions2.call(
+            Main::runExercise,
+            emptyContext(),
+            r -> String.format(EXCEPTION_MESSAGE, r.cause().toString())
+        );
     }
 
     @Test
-    public void testKasperMovement(){
+    public void testKasperMovement() {
         final var movementStates = toMovementStates(getStates());
         final var expectedMovement = List.of(
             //Kasper Drehung
@@ -331,28 +335,44 @@ public class TutorTests {
     }
 
     @Test
-    public void testKasperEndPosition(){
-        Context.Builder<?> context = contextBuilder();
-        boolean correctPosition = World.getGlobalWorld().getAllFieldEntities().stream()
+    public void testKasperEndPosition() {
+        final Context.Builder<?> context = contextBuilder();
+        final boolean correctPosition = World.getGlobalWorld().getAllFieldEntities().stream()
             .filter(fieldEntity -> fieldEntity instanceof Robot)
-            .peek(r -> context.add("Robot", contextBuilder().add("x", r.getX()).add("y", r.getY()).add("Direction", ((Robot) r).getDirection()).build()))
+            .peek(r -> context.add("Robot", contextBuilder().add("x", r.getX()).add("y", r.getY()).add(
+                "Direction",
+                ((Robot) r).getDirection()
+            ).build()))
             .anyMatch(robot ->
-                robot.getX() == 3 && robot.getY() == 4 && ((Robot) robot).getDirection() == LEFT
+                          robot.getX() == 3 && robot.getY() == 4 && ((Robot) robot).getDirection() == LEFT
             );
         context.add("Expected", contextBuilder().add("x", 3).add("y", 4).add("Direction", LEFT).build());
         assertTrue(correctPosition, context.build(), r -> END_POSITION_KASPER_NOT_CORRECT);
     }
 
     @Test
-    public void testKasperFor(){
-        assertTrue(LOOPS.stream().anyMatch(l -> l instanceof CtFor), emptyContext(), r -> NO_FOR_LOOP);
-        assertTrue(LOOPS.get(0) instanceof CtFor, contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "1").build(), r -> WRONG_FOR_COUNT);
-        assertTrue(LOOPS.get(1) instanceof CtFor, contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "2").build(), r -> WRONG_FOR_COUNT);
-        assertEquals(2L, LOOPS.stream().filter(l -> l instanceof CtFor).count(), emptyContext(), r -> WRONG_FOR_COUNT);
+    public void testKasperFor() {
+        assertTrue(loops.stream().anyMatch(l -> l instanceof CtFor), emptyContext(), r -> NO_FOR_LOOP);
+        assertTrue(
+            loops.get(0) instanceof CtFor,
+            contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "1").build(),
+            r -> WRONG_FOR_COUNT
+        );
+        assertTrue(
+            loops.get(1) instanceof CtFor,
+            contextBuilder().add("Die Schleife an folgender Position ist keine for-Schleife", "2").build(),
+            r -> WRONG_FOR_COUNT
+        );
+        assertEquals(
+            2L,
+            loops.stream().filter(l -> l instanceof CtFor).count(),
+            emptyContext(),
+            r -> WRONG_FOR_COUNT
+        );
     }
 
     @Test
-    public void testKasparCoins(){
+    public void testKasparCoins() {
         final var expectedCoinCounts = new int[][]{
             {1, 0, 0, 0, 0},
             {1, 0, 0, 0, 0},
@@ -360,11 +380,15 @@ public class TutorTests {
             {1, 0, 0, 0, 0},
             {1, 1, 1, 1, 1}
         };
-        assertTrue(getStates().stream().anyMatch(field -> checkCoinCountsEqual(expectedCoinCounts, getCoinCounts(field))), emptyContext(), r -> WRONG_COIN_AMOUNT_KASPER);
+        assertTrue(
+            getStates().stream().anyMatch(field -> checkCoinCountsEqual(expectedCoinCounts, getCoinCounts(field))),
+            emptyContext(),
+            r -> WRONG_COIN_AMOUNT_KASPER
+        );
     }
 
     @Test
-    public void testAlfredMovement(){
+    public void testAlfredMovement() {
         final var movementStates = toMovementStates(getStates());
         final var expectedMovement = List.of(
             //Alfred läuft nach unten
@@ -403,14 +427,20 @@ public class TutorTests {
     }
 
     @Test
-    public void testAlfredEndPosition(){
-        Context.Builder<?> context = contextBuilder();
+    public void testAlfredEndPosition() {
+        final Context.Builder<?> context = contextBuilder();
         final int[] i = {0};
-        boolean correctPosition = World.getGlobalWorld().getAllFieldEntities().stream()
+        final boolean correctPosition = World.getGlobalWorld().getAllFieldEntities().stream()
             .filter(fieldEntity -> fieldEntity instanceof Robot)
-            .peek(r -> {context.add("Robot"+ i[0], contextBuilder().add("x", r.getX()).add("y", r.getY()).add("Direction", ((Robot) r).getDirection()).build()); i[0]++;})
+            .peek(r -> {
+                context.add("Robot" + i[0], contextBuilder().add("x", r.getX()).add("y", r.getY()).add(
+                    "Direction",
+                    ((Robot) r).getDirection()
+                ).build());
+                i[0]++;
+            })
             .anyMatch(robot ->
-                robot.getX() == 0 && robot.getY() == 1 && ((Robot) robot).getDirection() == RIGHT
+                          robot.getX() == 0 && robot.getY() == 1 && ((Robot) robot).getDirection() == RIGHT
             );
         context.add("Expected", contextBuilder().add("x", 0).add("y", 1).add("Direction", RIGHT).build());
         assertTrue(correctPosition, context.build(), r -> END_POSITION_ALFRED_NOT_CORRECT);
@@ -418,15 +448,15 @@ public class TutorTests {
 
     @Test
     public void testAlfredWhile() {
-        assertTrue(LOOPS.stream().anyMatch(l -> l instanceof CtWhile), emptyContext(), r -> NO_WHILE_LOOP);
+        assertTrue(loops.stream().anyMatch(l -> l instanceof CtWhile), emptyContext(), r -> NO_WHILE_LOOP);
 
         boolean allWhile = false;
 
-        int forLoopIndex = LOOPS.indexOf(LOOPS.stream().filter(l -> l instanceof CtFor).findFirst().orElse(null));
+        final int forLoopIndex = loops.indexOf(loops.stream().filter(l -> l instanceof CtFor).findFirst().orElse(null));
 
-        for (int i = Math.max(forLoopIndex, 0); i < LOOPS.size(); i++) {
-            List<CtLoop> currentLoops = LOOPS.subList(i, LOOPS.size());
-            boolean allWhileSublist = currentLoops.stream().allMatch(l -> l instanceof CtWhile);
+        for (int i = Math.max(forLoopIndex, 0); i < loops.size(); i++) {
+            final List<CtLoop> currentLoops = loops.subList(i, loops.size());
+            final boolean allWhileSublist = currentLoops.stream().allMatch(l -> l instanceof CtWhile);
 
             if (currentLoops.get(0) instanceof CtWhile) {
                 assertTrue(allWhileSublist, emptyContext(), r -> NOT_ALL_WHILE_LOOP);
@@ -442,7 +472,7 @@ public class TutorTests {
     }
 
     @Test
-    public void testAlfredCoins(){
+    public void testAlfredCoins() {
         final var expectedCoinCounts = new int[][]{
             {0, 0, 0, 0, 0},
             {0, 0, 0, 0, 0},
@@ -450,16 +480,24 @@ public class TutorTests {
             {0, 0, 0, 0, 11},
             {0, 0, 0, 0, 0}
         };
-        assertTrue(getStates().stream().anyMatch(field -> checkCoinCountsEqual(expectedCoinCounts, getCoinCounts(field))), emptyContext(), r -> WRONG_COIN_AMOUNT_ALFRED);
+        assertTrue(getStates().stream().anyMatch(field -> checkCoinCountsEqual(
+            expectedCoinCounts,
+            getCoinCounts(field)
+        )), emptyContext(), r -> WRONG_COIN_AMOUNT_ALFRED);
     }
 
     @Test
-    public void testCorrectRobotCount(){
-        assertEquals(2L, World.getGlobalWorld().getAllFieldEntities().stream().filter(Robot.class::isInstance).count(), emptyContext(), r -> WRONG_ROBOT_AMOUNT);
+    public void testCorrectRobotCount() {
+        assertEquals(
+            2L,
+            World.getGlobalWorld().getAllFieldEntities().stream().filter(Robot.class::isInstance).count(),
+            emptyContext(),
+            r -> WRONG_ROBOT_AMOUNT
+        );
     }
 
     @Test
-    public void print(){
+    public void print() {
         System.out.println((getMovementStringListGenerationCode(toMovementStates(getStates()))));
     }
 }
