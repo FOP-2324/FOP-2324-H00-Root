@@ -1,8 +1,10 @@
 package h00;
 
 import fopbot.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.student.CrashException;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
@@ -29,6 +31,7 @@ import static org.tudalgo.algoutils.tutor.general.assertions.Assertions2.*;
  * @author Ruben Deisenroth, Patrick Blumenstein
  */
 @TestForSubmission
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class TutorTests {
     //------------//
     //--Messages--//
@@ -49,9 +52,7 @@ public class TutorTests {
     private static final String END_POSITION_KASPER_NOT_CORRECT = "Die Endposition von Kasper ist nicht korrekt.";
     private static final String END_POSITION_ALFRED_NOT_CORRECT = "Die Endposition des Alfred ist nicht korrekt.";
 
-    private static final BasicTypeLink CLASS_LINK = BasicTypeLink.of(Main.class);
-    private static final CtMethod<Void> EXERCISE_METHOD = ((CtClass<?>) CLASS_LINK.getCtElement()).getMethod("runExercise");
-    private static final List<CtLoop> LOOPS = getLoops(Main.class, EXERCISE_METHOD).toList();
+    private List<CtLoop> LOOPS;
 
     /**
      * Returns a custom error Message for wrong movement at a given index.
@@ -220,7 +221,7 @@ public class TutorTests {
      * @param method the method to check.
      * @return a list of all loops that are directly or indirectly contained in the method.
      */
-    private static Stream<CtLoop> getLoops(final Class<?> clazz, final CtMethod<?> method){
+    private static Stream<CtLoop> getLoops(final Class<?> clazz, final CtMethod<?> method) {
         return method.getElements(new TypeFilter<>(CtElement.class) {
                 @Override
                 public boolean matches(final CtElement element) {
@@ -229,15 +230,14 @@ public class TutorTests {
             })
             .stream()
             .flatMap(element -> {
-                if (element instanceof final CtInvocation<?> call){
+                if (element instanceof final CtInvocation<?> call) {
                     final var calledMethod = call.getExecutable();
-                    if(!calledMethod.getDeclaringType().equals(clazz)){
+                    if (!calledMethod.getDeclaringType().getQualifiedName().startsWith("h00.")) {
                         return Stream.of();
                     }
                     final var actualCalledMethod = calledMethod.getActualMethod();
                     final CtMethod<?> calledMethodCt = BasicMethodLink.of(actualCalledMethod).getCtElement();
                     return getLoops(clazz, calledMethodCt);
-//                    return Stream.of();
                 }
                 return Stream.of((CtLoop) element);
             });
@@ -283,6 +283,13 @@ public class TutorTests {
     //---------//
     //--Tests--//
     //---------//
+
+    @BeforeAll
+    public void setupLoops(){
+        final BasicTypeLink CLASS_LINK = BasicTypeLink.of(Main.class);
+        final CtMethod<Void> EXERCISE_METHOD = ((CtClass<?>) CLASS_LINK.getCtElement()).getMethod("runExercise");
+        LOOPS = getLoops(Main.class, EXERCISE_METHOD).toList();
+    }
 
     @BeforeEach
     public void setup() {
