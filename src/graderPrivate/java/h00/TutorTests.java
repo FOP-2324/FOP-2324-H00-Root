@@ -262,7 +262,8 @@ public class TutorTests {
             .flatMap(element -> {
                 if (element instanceof final CtInvocation<?> call) {
                     final var calledMethod = call.getExecutable();
-                    if (!calledMethod.getDeclaringType().getQualifiedName().startsWith("h00.")) {
+                    if (calledMethod.getDeclaringType() == null
+                        || !calledMethod.getDeclaringType().getQualifiedName().startsWith("h00.")) {
                         return Stream.of();
                     }
                     final var actualCalledMethod = calledMethod.getActualMethod();
@@ -287,11 +288,19 @@ public class TutorTests {
     //--Tests--//
     //---------//
 
+    /**
+     * Sets up the loops.
+     */
     @BeforeAll
     public void setupLoops() {
-        final BasicTypeLink classLink = BasicTypeLink.of(Main.class);
-        final CtMethod<Void> exerciseMethod = ((CtClass<?>) classLink.getCtElement()).getMethod("runExercise");
-        loops = getLoops(Main.class, exerciseMethod).toList();
+        try {
+            final BasicTypeLink classLink = BasicTypeLink.of(Main.class);
+            final CtMethod<Void> exerciseMethod = ((CtClass<?>) classLink.getCtElement())
+                .getMethod("runExercise");
+            loops = getLoops(Main.class, exerciseMethod).toList();
+        } catch (final Throwable e) {
+            // cannot check for loops
+        }
     }
 
     /**
