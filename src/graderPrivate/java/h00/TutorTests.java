@@ -5,6 +5,7 @@ import fopbot.Direction;
 import fopbot.Field;
 import fopbot.Robot;
 import fopbot.World;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.sourcegrade.jagr.api.rubric.TestForSubmission;
 import org.tudalgo.algoutils.tutor.general.assertions.Assertions2;
 import org.tudalgo.algoutils.tutor.general.assertions.Context;
+import org.tudalgo.algoutils.tutor.general.match.BasicStringMatchers;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicMethodLink;
 import org.tudalgo.algoutils.tutor.general.reflections.BasicTypeLink;
 import spoon.reflect.code.CtFor;
@@ -76,6 +78,9 @@ public class TutorTests {
     private static final String EXCEPTION_MESSAGE = "Es ist ein Fehler aufgetreten: %s";
 
     private List<CtLoop> loops;
+
+    BasicTypeLink classLink;
+    CtMethod<Void> exerciseMethod;
 
     /**
      * Returns a custom error Message for wrong movement at a given index.
@@ -294,8 +299,8 @@ public class TutorTests {
     @BeforeAll
     public void setupLoops() {
         try {
-            final BasicTypeLink classLink = BasicTypeLink.of(Main.class);
-            final CtMethod<Void> exerciseMethod = ((CtClass<?>) classLink.getCtElement())
+            classLink = BasicTypeLink.of(Main.class);
+            exerciseMethod = ((CtClass<?>) classLink.getCtElement())
                 .getMethod("runExercise");
             loops = getLoops(Main.class, exerciseMethod).toList();
         } catch (final Throwable e) {
@@ -311,7 +316,10 @@ public class TutorTests {
         setupWorld();
 
         Assertions2.call(
-            Main::runExercise,
+            () -> Assertions.assertDoesNotThrow(
+                () -> classLink.getMethod(BasicStringMatchers.identical("runExercise")).invokeStatic(),
+                String.format(EXCEPTION_MESSAGE, "Es sind Kompilierfehler aufgetreten.")
+            ),
             emptyContext(),
             r -> String.format(EXCEPTION_MESSAGE, r.cause().toString())
         );
