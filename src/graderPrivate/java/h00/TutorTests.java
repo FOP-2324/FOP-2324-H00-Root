@@ -309,13 +309,7 @@ public class TutorTests {
             World.getGlobalWorld().setActionLimit(1024);
 
             Assertions2.call(
-                () -> {
-                    try {
-                        classLink.getMethod(BasicStringMatchers.identical("runExercise")).invokeStatic();
-                    } catch (final Throwable e) {
-                        throw new RuntimeException(e);
-                    }
-                },
+                () -> classLink.getMethod(BasicStringMatchers.identical("runExercise")).invokeStatic(),
                 emptyContext(),
                 r -> String.format(EXCEPTION_MESSAGE, r.cause().toString())
             );
